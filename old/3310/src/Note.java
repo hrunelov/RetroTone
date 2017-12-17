@@ -32,39 +32,45 @@ public class Note {
 	}
 	
 	public final double value;
+	public final boolean dotted;
 	public final Pitch pitch;
 	public final int octave;
 	public final int frequency;
 	
-	public Note(int value, Pitch pitch, int octave) {
-		if (value < 1) throw new IllegalArgumentException("Value must be greater or equal to 1");
-		if (octave < 0 || octave > 9) throw new IllegalArgumentException("Octave must be between 0 and 9");
+	public Note(int value, boolean dotted, Pitch pitch, int octave) {
+		if (value < 1 || value > 64) throw new IllegalArgumentException("Value must be between 1 and 64");
+		if (octave < 1 || octave > 3) throw new IllegalArgumentException("Octave must be between 1 and 3");
 		
 		this.value = value;
+		this.dotted = dotted;
 		this.pitch = pitch;
 		this.octave = octave;
 		frequency = getFrequency();
 	}
 	
 	public Note(String str) {
+		str = str.toLowerCase();
+		
+		// Validate
+		if (!str.matches("^([1-9]|[1-5][0-9]|6[0-4])\\.?(-|(#?c|#?d|e|#?f|#?g|#?a|b)[1-3])$")) {
+			throw new IllegalArgumentException(PARSE_ERROR);
+		}
+		
 		int i = 0;
 		
 		// Parse value
 		double value = 0;
-		try {
-			for (i = 0; Character.isDigit(str.charAt(i)); ++i) {
-				value = value * 10 + Integer.parseInt(""+str.charAt(i));
-			}
-		} catch (StringIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException(PARSE_ERROR);
+		for (i = 0; Character.isDigit(str.charAt(i)); ++i) {
+			value = value * 10 + Integer.parseInt(""+str.charAt(i));
 		}
+		this.value = value;
 		
 		// Parse dot
 		if (str.charAt(i) == '.') {
-			value *= (3.0/4.0);
+			dotted = true;
 			++i;
 		}
-		this.value = value;
+		else dotted = false;
 		
 		// Parse pitch
 		Pitch pitch = null;
@@ -74,7 +80,6 @@ public class Note {
 				 pitch = p;
 			 }
 		}
-		if (pitch == null) throw new IllegalArgumentException(PARSE_ERROR);
 		this.pitch = pitch;
 		
 		// Parse octave
@@ -93,6 +98,7 @@ public class Note {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(value);
+		if (dotted) sb.append(".");
 		sb.append(pitch);
 		if (pitch != Pitch.REST) sb.append(octave);
 		return sb.toString();

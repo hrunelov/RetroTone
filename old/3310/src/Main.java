@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -46,20 +47,30 @@ public class Main extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (tune == null) {
-					tune = new Tune(Math.toIntExact((long)tempoField.getValue()), songField.getText());
-					tune.play();
-					tune.addActionListener(new ActionListener() {
-
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							tune = null;
-							playButton.setText("Play");
-							songField.setEnabled(true);
-						}
-						
-					});
-					playButton.setText("Stop");
-					songField.setEnabled(false);
+					try {
+						tune = new Tune(Math.toIntExact((long)tempoField.getValue()), songField.getText());
+						tune.play();
+						tune.addActionListener(new ActionListener() {
+	
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								tune = null;
+								playButton.setText("Play");
+								songField.setEnabled(true);
+								tempoField.setEnabled(true);
+							}
+							
+						});
+						playButton.setText("Stop");
+						songField.setEnabled(false);
+						tempoField.setEnabled(false);
+					}
+					catch (Exception ex) {
+						JOptionPane.showMessageDialog(null,
+													  "Syntax error in song.",
+													  "Unable to play song",
+													  JOptionPane.ERROR_MESSAGE);
+					}
 				}
 				else tune.stop();
 			}

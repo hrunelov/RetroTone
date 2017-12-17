@@ -165,7 +165,7 @@ public class Tune {
 	}
 	
 	private long numSamplesForNote(Note note) {
-		return (long)((240.0/(tempo*note.value)) * SAMPLE_RATE);
+		return (long)((240.0/(tempo*(note.value/(note.dotted ? 1.5 : 1)))) * SAMPLE_RATE);
 	}
 	
 	private static double getWave(double f, double t) {
